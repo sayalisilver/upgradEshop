@@ -167,14 +167,21 @@ const ProductDetails = () => {
 
               <Button
                 variant="contained"
-                size="large"
                 onClick={handleBuyNow}
-                disabled={!product.availableItems || quantity < 1}
+                disabled={!product?.availableItems}
                 sx={{
+                  mt: 3,
                   bgcolor: '#3f51b5',
                   color: 'white',
+                  borderRadius: '4px',
+                  textTransform: 'uppercase',
+                  padding: '6px 16px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                   '&:hover': {
-                    bgcolor: '#303f9f'
+                    bgcolor: '#303f9f',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
                   }
                 }}
               >

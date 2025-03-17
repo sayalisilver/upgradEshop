@@ -28,8 +28,45 @@ export const authAPI = {
     });
     return response.data;
   },
-  signup: (data) => {
-    return api.post('/auth/signup', data);
+  signup: async (data) => {
+    try {
+      console.log('Starting signup with data:', data);
+      // Format the data according to API requirements
+      const formattedData = {
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        role: ["admin"],  // Changed to match the required format
+        lastName: data.lastName,
+        contactNumber: data.contactNumber
+      };
+      
+      console.log('Formatted signup data:', formattedData);
+      
+      const response = await axios.post(`${BASE_URL}/auth/signup`, formattedData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('Signup response:', response.data);
+      
+      // If signup returns a token, store it
+      if (response.data.token) {
+        localStorage.setItem('x-auth-token', response.data.token);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('isAdmin', true); // Since we're signing up as admin
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Signup error:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
+      throw error;
+    }
   }
 };
 
@@ -213,13 +250,18 @@ export const addressAPI = {
   getAll: async () => {
     try {
       console.log('Starting address fetch...');
-      console.log('Using token:', X_AUTH_TOKEN);
+      const token = localStorage.getItem('x-auth-token');
+      console.log('Using token:', token);
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
       
       const response = await axios.get(`${BASE_URL}/addresses`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'x-auth-token': X_AUTH_TOKEN
+          'x-auth-token': token
         }
       });
       
@@ -245,6 +287,11 @@ export const addressAPI = {
   create: async (addressData) => {
     try {
       console.log('Creating address with data:', addressData);
+      const token = localStorage.getItem('x-auth-token');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
       
       // Format the data according to API requirements
       const formattedData = {
@@ -263,7 +310,7 @@ export const addressAPI = {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'x-auth-token': X_AUTH_TOKEN
+          'x-auth-token': token
         }
       });
       

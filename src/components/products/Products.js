@@ -278,8 +278,10 @@ const Products = () => {
       </Box>
 
       {/* Sort Control */}
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-        <Typography sx={{ mr: 2, color: 'text.secondary' }}>Sort By:</Typography>
+      <Box className="sort-container" sx={{ mb: 2 }}>
+        <Typography component="label" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+          Sort By:
+        </Typography>
         <FormControl size="small" sx={{ minWidth: 200 }}>
           <Select
             value={sortBy}
@@ -291,6 +293,7 @@ const Products = () => {
               '& .MuiSelect-select': {
                 py: 1,
                 bgcolor: 'white',
+                fontSize: '14px'
               },
               '& .MuiOutlinedInput-notchedOutline': {
                 borderColor: 'rgba(0, 0, 0, 0.12)'
@@ -367,12 +370,17 @@ const Products = () => {
                     variant="contained"
                     onClick={() => handleBuy(product.id)}
                     sx={{
-                      bgcolor: '#3f51b5',
+                      cursor: 'pointer',
+                      display: 'inline-block',
+                      width: 'auto',
+                      padding: '5px 10px',
+                      backgroundColor: 'blue',
                       color: 'white',
-                      textTransform: 'uppercase',
-                      flex: 1,
+                      border: 'none',
+                      borderRadius: '5px',
+                      textAlign: 'center',
                       '&:hover': {
-                        bgcolor: '#303f9f'
+                        backgroundColor: '#0000dd'
                       }
                     }}
                   >

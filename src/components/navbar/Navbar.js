@@ -70,6 +70,9 @@ const Navbar = () => {
         <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
           <form onSubmit={handleSearch} className="search-form">
             <Box className="search-container">
+              <IconButton type="submit" sx={{ color: 'white', p: 1 }}>
+                <SearchIcon />
+              </IconButton>
               <InputBase
                 placeholder="Search..."
                 value={searchQuery}
@@ -83,12 +86,8 @@ const Navbar = () => {
                   minWidth: '300px',
                   padding: '4px 8px',
                   borderRadius: '4px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 }}
               />
-              <IconButton type="submit" sx={{ color: 'white' }}>
-                <SearchIcon />
-              </IconButton>
             </Box>
           </form>
         </Box>

@@ -152,20 +152,21 @@ const Login = () => {
           >
             SIGN IN
           </Button>
-          <Box sx={{ textAlign: 'center', mt: 1, display: 'flex', justifyContent: 'center' }}>
-            <Typography variant="body2" sx={{ mr: 1, color: 'text.secondary' }}>
-              Don't have an account?
-            </Typography>
+          <Box sx={{ textAlign: 'center' }}>
             <Link
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/signup');
+              component="button"
+              variant="body2"
+              onClick={() => navigate('/signup')}
+              sx={{
+                color: '#673ab7',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                '&:hover': {
+                  color: '#512da8'
+                }
               }}
-              underline="hover"
-              sx={{ color: '#3f51b5' }}
             >
-              Sign up
+              Don't have an account? Sign Up
             </Link>
           </Box>
         </Box>

@@ -42,26 +42,26 @@ const SignUp = () => {
     }
 
     try {
-      // Prepare data for API
+      // Prepare data for API - matching the exact format required
       const signupData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
+        firstName: formData.firstName,
+        role: ["admin"],
+        lastName: formData.lastName,
         contactNumber: formData.contactNumber
       };
 
+      console.log('Attempting signup with:', signupData);
       const response = await authAPI.signup(signupData);
+      console.log('Signup successful:', response);
       
-      // Store token if returned
-      if (response.token) {
-        localStorage.setItem('x-auth-token', response.token);
-      }
-      
-      // Navigate to login page after successful signup
+      // After successful signup, navigate to login
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred during signup');
+      console.error('Signup error:', err);
+      const errorMessage = err.response?.data?.message || 'An error occurred during signup. Please try again.';
+      setError(errorMessage);
     }
   };
 
@@ -251,20 +251,21 @@ const SignUp = () => {
           >
             SIGN UP
           </Button>
-          <Box sx={{ textAlign: 'center', mt: 1, display: 'flex', justifyContent: 'center' }}>
-            <Typography variant="body2" sx={{ mr: 1, color: 'text.secondary' }}>
-              Already have an account?
-            </Typography>
+          <Box sx={{ textAlign: 'right' }}>
             <Link
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/login');
+              component="button"
+              variant="body2"
+              onClick={() => navigate('/login')}
+              sx={{
+                color: '#673ab7',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                '&:hover': {
+                  color: '#512da8'
+                }
               }}
-              underline="hover"
-              sx={{ color: '#3f51b5' }}
             >
-              Sign in
+              Already have an account? Sign in
             </Link>
           </Box>
         </Box>
