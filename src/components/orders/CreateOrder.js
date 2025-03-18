@@ -21,6 +21,73 @@ import {
   FormHelperText
 } from '@mui/material';
 import { productsAPI, addressAPI, orderAPI } from '../../services/api';
+import { styled } from '@mui/material/styles';
+
+// Styled components
+const StyledConfirmContainer = styled('div')({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  background: 'white',
+  padding: '0',
+  borderRadius: '8px',
+  border: '1px solid #e0e0e0',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  '@media (max-width: 768px)': {
+    gridTemplateColumns: '1fr'
+  }
+});
+
+const StyledDetailsBox = styled('div')(({ isRightSection }) => ({
+  padding: '24px',
+  background: '#fff',
+  borderRight: isRightSection ? 'none' : '1px solid #e0e0e0',
+  '@media (max-width: 768px)': {
+    borderRight: 'none',
+    borderBottom: isRightSection ? 'none' : '1px solid #e0e0e0'
+  }
+}));
+
+const StyledProductName = styled(Typography)({
+  fontSize: '28px',
+  fontWeight: 700,
+  marginBottom: '20px',
+  color: '#000'
+});
+
+const StyledDescription = styled(Typography)({
+  fontSize: '16px',
+  fontStyle: 'italic',
+  color: '#666',
+  marginBottom: '20px',
+  lineHeight: '1.6'
+});
+
+const StyledTotalPrice = styled(Typography)({
+  fontSize: '24px',
+  fontWeight: 700,
+  color: '#f44336',
+  marginTop: '20px'
+});
+
+const StyledLabel = styled(Typography)({
+  fontSize: '16px',
+  color: '#333',
+  marginBottom: '8px'
+});
+
+const StyledAddressTitle = styled(Typography)({
+  fontSize: '22px',
+  fontWeight: 600,
+  marginBottom: '20px',
+  color: '#000'
+});
+
+const StyledButtonContainer = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '16px',
+  marginTop: '32px'
+});
 
 const steps = ['Product Details', 'Address Details', 'Confirm Order'];
 
@@ -108,18 +175,20 @@ const CreateOrder = () => {
   const placeOrder = async () => {
     try {
       setLoading(true);
+      // Format order request to match API requirements
       await orderAPI.create({
-        productId: id,
-        addressId: selectedAddress,
-        quantity: quantity
+        quantity: quantity,
+        product: id,  // Using product_id from URL params
+        address: selectedAddress  // Using selected address ID
       });
-      setSuccess('Order placed successfully!');
-      setTimeout(() => {
-        navigate('/products');
-      }, 2000);
+      
+      // Navigate to products page with success message
+      navigate('/products', {
+        state: { notification: 'Order placed successfully!' }
+      });
     } catch (err) {
-      setError('Failed to place order');
-      console.error(err);
+      setError('Failed to place order: ' + (err.response?.data?.message || err.message));
+      console.error('Order creation error:', err);
     } finally {
       setLoading(false);
     }
@@ -365,29 +434,74 @@ const CreateOrder = () => {
         );
 
       case 2:
+        const selectedAddressDetails = addresses.find(addr => addr.id === selectedAddress);
         return (
           <Box>
-            {product && (
+            {product && selectedAddressDetails && (
               <>
-                <Typography variant="h6" gutterBottom>Order Summary</Typography>
-                <Divider sx={{ mb: 2 }} />
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle1">Product:</Typography>
-                    <Typography variant="body1" color="text.secondary">{product.name}</Typography>
-                    <Typography variant="subtitle1" sx={{ mt: 2 }}>Quantity:</Typography>
-                    <Typography variant="body1" color="text.secondary">{quantity}</Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle1">Total Amount:</Typography>
-                    <Typography variant="h6" color="primary">₹{product.price * quantity}</Typography>
-                  </Grid>
-                </Grid>
-                {success && (
-                  <Alert severity="success" sx={{ mt: 2 }}>
-                    Your order is confirmed.
-                  </Alert>
-                )}
+                <Typography variant="h5" gutterBottom sx={{ 
+                  color: '#3f51b5', 
+                  mb: 3,
+                  textAlign: 'center',
+                  fontSize: '24px',
+                  fontWeight: 600
+                }}>
+                  
+                </Typography>
+                <StyledConfirmContainer>
+                  {/* Order Details - Left Section */}
+                  <StyledDetailsBox>
+                    <StyledProductName>
+                      {product.name}
+                    </StyledProductName>
+                    
+                    <StyledLabel>
+                      Quantity: {quantity}
+                    </StyledLabel>
+                    
+                    <StyledLabel>
+                      Category: {product.category}
+                    </StyledLabel>
+                    
+                    <StyledDescription>
+                      {product.description}
+                    </StyledDescription>
+                    
+                    <StyledTotalPrice>
+                      Total Price: ₹{product.price * quantity}
+                    </StyledTotalPrice>
+                  </StyledDetailsBox>
+
+                  {/* Address Details - Right Section */}
+                  <StyledDetailsBox isRightSection>
+                    <StyledAddressTitle>
+                      Address Details
+                    </StyledAddressTitle>
+                    
+                    <StyledLabel sx={{ fontWeight: 600 }}>
+                      {selectedAddressDetails.name}
+                    </StyledLabel>
+                    
+                    <StyledLabel>
+                      Contact: {selectedAddressDetails.contactNumber}
+                    </StyledLabel>
+                    
+                    <Box sx={{ mt: 2 }}>
+                      <StyledLabel>
+                        {selectedAddressDetails.street},<br />
+                        {selectedAddressDetails.city},<br />
+                        {selectedAddressDetails.state},<br />
+                        {selectedAddressDetails.zipcode}
+                      </StyledLabel>
+                      
+                      {selectedAddressDetails.landmark && (
+                        <StyledLabel sx={{ color: '#666', mt: 1 }}>
+                          Landmark: {selectedAddressDetails.landmark}
+                        </StyledLabel>
+                      )}
+                    </Box>
+                  </StyledDetailsBox>
+                </StyledConfirmContainer>
               </>
             )}
           </Box>
@@ -431,11 +545,21 @@ const CreateOrder = () => {
 
         {renderStepContent(activeStep)}
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          mt: 3,
+          gap: 2
+        }}>
           {activeStep !== 0 && (
             <Button
               onClick={handleBack}
-              sx={{ mr: 1 }}
+              variant="outlined"
+              sx={{
+                minWidth: '120px',
+                borderColor: '#3f51b5',
+                color: '#3f51b5'
+              }}
             >
               Back
             </Button>
@@ -445,15 +569,18 @@ const CreateOrder = () => {
             onClick={handleNext}
             disabled={loading}
             sx={{
-              bgcolor: activeStep === 0 ? '#3f51b5' : undefined,
+              bgcolor: '#3f51b5',
               '&:hover': {
-                bgcolor: activeStep === 0 ? '#303f9f' : undefined
-              }
+                bgcolor: '#303f9f'
+              },
+              minWidth: '120px',
+              ...(activeStep === steps.length - 1 && {
+                fontSize: '1rem',
+                py: 1
+              })
             }}
           >
-            {activeStep === 0 ? 'PLACE ORDER' : 
-             activeStep === steps.length - 1 ? 'Place Order' : 
-             'Next'}
+            {activeStep === steps.length - 1 ? 'Place Order' : 'Next'}
           </Button>
         </Box>
       </Paper>

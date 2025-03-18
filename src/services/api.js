@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BASE_URL = 'https://dev-project-ecommerce.upgrad.dev/api';
-const X_AUTH_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vQGRlbW8uY29tIiwiaWF0IjoxNzQyMTI4MDM3LCJleHAiOjE3NDIxMzY0Mzd9.FUuq2th6l57u-OXC6wB5aWYjL7lQiD4mIfQT_yO6RotoWuiVOVJpcfyZnmH2tK2LVWBmFYY_IZ0rNF7I_MZXgg';
+const X_AUTH_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vQGRlbW8uY29tIiwiaWF0IjoxNzQyMzE0MzA1LCJleHAiOjE3NDIzMjI3MDV9.Hx6dm-yd9eNw4TtTFiUix6m-Ii-VZS5GBHdIzsXdqaBN34CVZsiaIFqKDoRB5895pteohrZ5gA-efcvUBXBdDg';
 const ADMIN_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBkZW1vLmNvbSIsImlhdCI6MTc0MjEyODYyNCwiZXhwIjoxNzQyMTM3MDI0fQ.v-BnSdl7eYIncACNkC2zIt7xGBB8HZ7xPlFtSFc3_jmz5pVaiPZDV-ZJ-eNIp_YDLhkcMonJZeFCZM-x2KonGw';
 
 // Create axios instance with default config
@@ -250,18 +250,13 @@ export const addressAPI = {
   getAll: async () => {
     try {
       console.log('Starting address fetch...');
-      const token = localStorage.getItem('x-auth-token');
-      console.log('Using token:', token);
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      console.log('Using hardcoded token');
       
       const response = await axios.get(`${BASE_URL}/addresses`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'x-auth-token': token
+          'x-auth-token': X_AUTH_TOKEN
         }
       });
       
@@ -287,11 +282,6 @@ export const addressAPI = {
   create: async (addressData) => {
     try {
       console.log('Creating address with data:', addressData);
-      const token = localStorage.getItem('x-auth-token');
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
       
       // Format the data according to API requirements
       const formattedData = {
@@ -310,7 +300,7 @@ export const addressAPI = {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'x-auth-token': token
+          'x-auth-token': X_AUTH_TOKEN
         }
       });
       
@@ -339,7 +329,13 @@ export const orderAPI = {
   create: async (orderData) => {
     try {
       console.log('Creating order:', orderData);
-      const response = await api.post('/orders', orderData);
+      const response = await axios.post(`${BASE_URL}/orders`, orderData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'x-auth-token': X_AUTH_TOKEN
+        }
+      });
       console.log('Order creation response:', response.data);
       return response.data;
     } catch (error) {

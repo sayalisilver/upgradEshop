@@ -365,7 +365,7 @@ const Products = () => {
                     {product.description || 'No description available'}
                   </Typography>
                 </CardContent>
-                <CardActions sx={{ p: 2, pt: 0, display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <CardActions sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Button
                     variant="contained"
                     onClick={() => handleBuy(product.id)}
@@ -387,7 +387,7 @@ const Products = () => {
                     BUY
                   </Button>
                   {isAdmin && (
-                    <Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} sx={{ ml: 'auto' }}>
                       <IconButton
                         onClick={() => handleEdit(product.id)}
                         size="small"
