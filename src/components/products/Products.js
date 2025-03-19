@@ -56,7 +56,7 @@ const Products = () => {
       return;
     }
 
-    // Check for notification from location state
+    // Check for notification from location state.
     if (location.state?.notification) {
       setNotification({
         open: true,
