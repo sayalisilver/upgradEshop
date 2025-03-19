@@ -89,20 +89,21 @@ const StyledButtonContainer = styled(Box)({
   marginTop: '32px'
 });
 
-const steps = ['Product Details', 'Address Details', 'Confirm Order'];
+const steps = ['Items', 'Select Address', 'Confirm Order'];
 
 const CreateOrder = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(0);
-  const [product, setProduct] = useState(null);
+  const [activeStep, setActiveStep] = useState(1);
+  const [product, setProduct] = useState(location.state?.product || null);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [quantity, setQuantity] = useState(location.state?.quantity || 1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const fromProductDetails = true;
   const [newAddress, setNewAddress] = useState({
     name: '',
     contactNumber: '',
@@ -112,6 +113,7 @@ const CreateOrder = () => {
     landmark: '',
     zipCode: ''
   });
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
 
   const fetchProduct = useCallback(async () => {
     try {
@@ -157,6 +159,7 @@ const CreateOrder = () => {
   const handleNext = () => {
     if (activeStep === 1 && !selectedAddress) {
       setError('Please select address!');
+      setShowErrorPopup(true);
       return;
     }
     if (activeStep === steps.length - 1) {
@@ -168,8 +171,12 @@ const CreateOrder = () => {
   };
 
   const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
-    setError('');
+    if (activeStep === 1) {
+      navigate(`/products/${id}`);
+    } else {
+      setActiveStep((prevStep) => prevStep - 1);
+      setError('');
+    }
   };
 
   const placeOrder = async () => {
@@ -348,7 +355,14 @@ const CreateOrder = () => {
             </Typography>
 
             <Typography variant="h6" gutterBottom>Add Address</Typography>
-            <Box component="form" onSubmit={handleAddressSubmit}>
+            <Box 
+              component="form" 
+              onSubmit={handleAddressSubmit}
+              sx={{
+                width: '90%',
+                margin: '0 auto'
+              }}
+            >
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
@@ -425,6 +439,13 @@ const CreateOrder = () => {
                   type="submit"
                   variant="contained"
                   disabled={loading}
+                  sx={{
+                    width: '100%',
+                    bgcolor: '#3f51b5',
+                    '&:hover': {
+                      bgcolor: '#303f9f'
+                    }
+                  }}
                 >
                   Save Address
                 </Button>
@@ -524,15 +545,19 @@ const CreateOrder = () => {
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 3 }}>
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map((label) => (
-            <Step key={label}>
+          {steps.map((label, index) => (
+            <Step key={label} completed={index === 0 || (activeStep > index)}>
               <StepLabel>{label}</StepLabel>
             </Step>
           ))}
         </Stepper>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+        {error && showErrorPopup && (
+          <Alert 
+            severity="error" 
+            sx={{ mb: 2 }}
+            onClose={() => setShowErrorPopup(false)}
+          >
             {error}
           </Alert>
         )}
@@ -557,8 +582,14 @@ const CreateOrder = () => {
               variant="outlined"
               sx={{
                 minWidth: '120px',
-                borderColor: '#3f51b5',
-                color: '#3f51b5'
+                color: '#3f51b5',
+                ...(activeStep === steps.length - 1 || activeStep === 1 ? {
+                  border: 'none',
+                  '&:hover': {
+                    border: 'none',
+                    bgcolor: 'transparent'
+                  }
+                } : {})
               }}
             >
               Back

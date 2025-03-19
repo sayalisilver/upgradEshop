@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -14,11 +14,16 @@ import { authAPI } from '../../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Get notification from navigation state
+  const notification = location.state?.notification;
 
   const handleChange = (e) => {
     setFormData({
@@ -83,6 +88,12 @@ const Login = () => {
         <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
           Sign in
         </Typography>
+
+        {notification && (
+          <Alert severity="success" sx={{ width: '100%', mb: 2 }}>
+            {notification}
+          </Alert>
+        )}
 
         {error && (
           <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
@@ -152,7 +163,7 @@ const Login = () => {
           >
             SIGN IN
           </Button>
-          <Box sx={{ textAlign: 'center' }}>
+          <Box sx={{ textAlign: 'left' }}>
             <Link
               component="button"
               variant="body2"
@@ -164,6 +175,7 @@ const Login = () => {
                 '&:hover': {
                   color: '#512da8'
                 }
+
               }}
             >
               Don't have an account? Sign Up

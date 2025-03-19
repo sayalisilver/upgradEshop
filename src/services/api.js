@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const BASE_URL = 'https://dev-project-ecommerce.upgrad.dev/api';
-const X_AUTH_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vQGRlbW8uY29tIiwiaWF0IjoxNzQyMzE0MzA1LCJleHAiOjE3NDIzMjI3MDV9.Hx6dm-yd9eNw4TtTFiUix6m-Ii-VZS5GBHdIzsXdqaBN34CVZsiaIFqKDoRB5895pteohrZ5gA-efcvUBXBdDg';
-const ADMIN_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBkZW1vLmNvbSIsImlhdCI6MTc0MjEyODYyNCwiZXhwIjoxNzQyMTM3MDI0fQ.v-BnSdl7eYIncACNkC2zIt7xGBB8HZ7xPlFtSFc3_jmz5pVaiPZDV-ZJ-eNIp_YDLhkcMonJZeFCZM-x2KonGw';
+const X_AUTH_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vQGRlbW8uY29tIiwiaWF0IjoxNzQyNDAxMTY5LCJleHAiOjE3NDI0MDk1Njl9.qUZq82xnW6nviPr6z_WfSF1b1akEyf9zkcOnQ-9g7B9pDRjXrSYwG2AjbO0HNiukQNQsIsn7jDKLnmBp-hm2-g';
+const ADMIN_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBkZW1vLmNvbSIsImlhdCI6MTc0MjQwMzYzNSwiZXhwIjoxNzQyNDEyMDM1fQ.R-S8XsNvgZn1KtjtbKw4-z1En8kCXarTq9knntlH4PgNf2dBE15iI_v1xyWQvQk0r5TbKD1xYQkF_fPuzJ1vkg';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -45,10 +45,13 @@ export const authAPI = {
       
       const response = await axios.post(`${BASE_URL}/auth/signup`, formattedData, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          
         }
       });
+      
       console.log('Signup response:', response.data);
+      
       
       // If signup returns a token, store it
       if (response.data.token) {

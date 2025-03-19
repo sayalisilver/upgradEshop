@@ -30,6 +30,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { productsAPI } from '../../services/api';
+import ProductCard from './ProductCard';
 
 const Products = () => {
   const navigate = useNavigate();
@@ -240,14 +241,18 @@ const Products = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 2, position: 'relative' }}>
       {/* Category Toggle Buttons */}
-      <Box sx={{ mb: 3, overflowX: 'auto' }}>
+      <Box sx={{ 
+        mb: 3, 
+        display: 'flex',
+        justifyContent: 'center',
+        overflowX: 'auto'
+      }}>
         <ToggleButtonGroup
           value={selectedCategory}
           exclusive
           onChange={handleCategoryChange}
           aria-label="product categories"
           sx={{
-            minWidth: '100%',
             '& .MuiToggleButton-root': {
               textTransform: 'uppercase',
               px: 3,
@@ -309,7 +314,7 @@ const Products = () => {
       </Box>
 
       {/* Products Grid */}
-      <Grid container spacing={4}>
+      <Grid container spacing={4} justifyContent="center">
         {filteredProducts.length === 0 ? (
           <Grid item xs={12}>
             <Typography variant="h6" sx={{ textAlign: 'center', mt: 4 }}>
@@ -318,100 +323,15 @@ const Products = () => {
           </Grid>
         ) : (
           filteredProducts.map((product) => (
-            <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
-              <Card sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                '&:hover': {
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-                }
-              }}>
-                <CardMedia
-                  component="img"
-                  sx={{ 
-                    height: 200, 
-                    objectFit: 'contain', 
-                    p: 2,
-                    bgcolor: '#f5f5f5'
-                  }}
-                  image={product.imageUrl || 'https://via.placeholder.com/200'}
-                  alt={product.name || 'Product image'}
+            <Grid item key={product.id} xs={12} sm={6} md={4}>
+              <Box sx={{ height: '100%' }}>
+                <ProductCard 
+                  product={product}
+                  isAdmin={isAdmin}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
                 />
-                <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-                  <Typography gutterBottom variant="h6" component="h2" sx={{ 
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    mb: 1
-                  }}>
-                    {product.name || 'Unnamed Product'}
-                  </Typography>
-                  <Typography variant="h6" sx={{ 
-                    color: '#3f51b5', 
-                    fontWeight: 600,
-                    mb: 1
-                  }}>
-                    ₹ {product.price || 0}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ 
-                    mb: 1,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {product.description || 'No description available'}
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleBuy(product.id)}
-                    sx={{
-                      cursor: 'pointer',
-                      display: 'inline-block',
-                      width: 'auto',
-                      padding: '5px 10px',
-                      backgroundColor: 'blue',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '5px',
-                      textAlign: 'center',
-                      '&:hover': {
-                        backgroundColor: '#0000dd'
-                      }
-                    }}
-                  >
-                    BUY
-                  </Button>
-                  {isAdmin && (
-                    <Stack direction="row" spacing={1} sx={{ ml: 'auto' }}>
-                      <IconButton
-                        onClick={() => handleEdit(product.id)}
-                        size="small"
-                        sx={{
-                          color: '#666',
-                          '&:hover': { color: '#3f51b5' }
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(product.id, product.name)}
-                        size="small"
-                        sx={{
-                          color: '#666',
-                          '&:hover': { color: '#f44336' }
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Stack>
-                  )}
-                </CardActions>
-              </Card>
+              </Box>
             </Grid>
           ))
         )}

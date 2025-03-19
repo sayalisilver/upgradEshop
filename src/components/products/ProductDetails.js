@@ -10,10 +10,15 @@ import {
   Paper,
   Chip,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Stepper,
+  Step,
+  StepLabel
 } from '@mui/material';
 import { productsAPI } from '../../services/api';
 import CategoryTabs from './CategoryTabs';
+
+const steps = ['Items', 'Select Address', 'Confirm Order'];
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -23,6 +28,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [isOrdering, setIsOrdering] = useState(false);
 
   useEffect(() => {
     fetchProductDetails();
@@ -57,7 +63,10 @@ const ProductDetails = () => {
   const handleBuyNow = () => {
     if (product && quantity > 0) {
       navigate(`/products/${id}/order`, {
-        state: { quantity, product }
+        state: { 
+          quantity,
+          product
+        }
       });
     }
   };
@@ -73,25 +82,15 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4 }}>
-        <CategoryTabs 
-          selectedCategory={selectedCategory} 
-          onCategoryChange={handleCategoryChange}
-        />
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <CircularProgress />
-        </Box>
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4, textAlign: 'center' }}>
+        <CircularProgress />
       </Container>
     );
   }
 
   if (error || !product) {
     return (
-      <Container sx={{ mt: 4 }}>
-        <CategoryTabs 
-          selectedCategory={selectedCategory} 
-          onCategoryChange={handleCategoryChange}
-        />
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error">{error || 'Product not found'}</Alert>
       </Container>
     );
@@ -99,103 +98,145 @@ const ProductDetails = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <CategoryTabs 
-        selectedCategory={selectedCategory} 
-        onCategoryChange={handleCategoryChange}
-      />
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Grid container spacing={4}>
+      <CategoryTabs selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          borderRadius: 2,
+          boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Stepper activeStep={0} sx={{ mb: 4 }}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 6,
+          alignItems: 'flex-start'
+        }}>
           {/* Product Image */}
-          <Grid item xs={12} md={6}>
-            <Box
-              component="img"
-              sx={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: 400,
-                objectFit: 'contain',
-                bgcolor: '#f5f5f5',
-                borderRadius: 1
-              }}
-              src={product.imageUrl || 'https://via.placeholder.com/400'}
-              alt={product.name || 'Product image'}
-              onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/400';
-                e.target.alt = 'Product image not available';
-              }}
-            />
-          </Grid>
+          <Box
+            component="img"
+            sx={{
+              width: '300px',
+              height: '300px',
+              objectFit: 'contain',
+              bgcolor: '#f8f9fa',
+              borderRadius: 2,
+              padding: 2,
+              border: '1px solid #ddd',
+            }}
+            src={product.imageUrl || 'https://via.placeholder.com/300'}
+            alt={product.name || 'Product image'}
+          />
 
           {/* Product Details */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h4" gutterBottom>
-              {product.name}
-            </Typography>
-
-            <Chip 
-              label={`Category: ${product.category}`}
-              sx={{ mb: 2, bgcolor: '#f5f5f5' }}
-            />
-
-            <Box sx={{ my: 2 }}>
-              <Typography variant="h5" color="primary" gutterBottom>
-                ₹ {product.price}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Name and Available Quantity */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="h4" sx={{ fontSize: '2rem' }}>
+                {product.name}
               </Typography>
-              
-              <Typography variant="body1" color="text.secondary" paragraph>
+              <Box sx={{ 
+                backgroundColor: '#3f51b5',
+                color: 'white',
+                padding: '4px 12px',
+                borderRadius: '16px',
+                fontSize: '0.875rem',
+              }}>
+                Available Quantity: {product.availableItems || 0}
+              </Box>
+            </Box>
+
+            {/* Category */}
+            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+              <Typography sx={{ color: 'text.secondary', minWidth: 'fit-content' }}>
+                Category:&nbsp;
+              </Typography>
+              <Typography fontWeight="bold">
+                {product.category}
+              </Typography>
+            </Box>
+
+            {/* Description */}
+            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+              <Typography sx={{ 
+                fontSize: '0.875rem',
+                fontStyle: 'italic',
+                color: 'text.secondary'
+              }}>
                 {product.description}
               </Typography>
+            </Box>
 
-              <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                Available Quantity: {product.availableItems || 0}
+            {/* Price */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography sx={{ color: 'text.secondary', minWidth: 'fit-content' }}>
+                Price:&nbsp;
+              </Typography>
+              <Typography 
+                sx={{ 
+                  color: '#ff3d00',
+                  fontWeight: 'bold',
+                  fontSize: '1.5rem'
+                }}
+              >
+                ₹ {product.price}
               </Typography>
             </Box>
 
-            <Box sx={{ mt: 3 }}>
-              <TextField
-                type="number"
-                label="Quantity"
-                value={quantity}
-                onChange={handleQuantityChange}
-                inputProps={{ 
-                  min: 1, 
-                  max: product.availableItems,
-                  'aria-label': 'quantity'
-                }}
-                sx={{ width: 100, mr: 2 }}
-              />
+            {/* Quantity Input */}
+            <TextField
+              type="number"
+              variant="outlined"
+              value={quantity}
+              onChange={handleQuantityChange}
+              label="Enter Quantity"
+              inputProps={{
+                min: 1,
+                max: product.availableItems,
+              }}
+              sx={{ 
+                width: '200px',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1
+                }
+              }}
+            />
 
-              <Button
-                variant="contained"
-                onClick={handleBuyNow}
-                disabled={!product?.availableItems}
-                sx={{
-                  mt: 3,
-                  bgcolor: '#3f51b5',
-                  color: 'white',
-                  borderRadius: '4px',
-                  textTransform: 'uppercase',
-                  padding: '6px 16px',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                  '&:hover': {
-                    bgcolor: '#303f9f',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-                  }
-                }}
-              >
-                PLACE ORDER
-              </Button>
-            </Box>
+            {/* Place Order Button */}
+            <Button
+              variant="contained"
+              onClick={handleBuyNow}
+              disabled={!product?.availableItems}
+              sx={{
+                width: '200px',
+                bgcolor: '#3f51b5',
+                color: 'white',
+                borderRadius: 1,
+                padding: '10px 20px',
+                textTransform: 'uppercase',
+                '&:hover': {
+                  bgcolor: '#303f9f',
+                },
+              }}
+            >
+              PLACE ORDER
+            </Button>
 
             {product.availableItems === 0 && (
-              <Alert severity="error" sx={{ mt: 2 }}>
+              <Alert severity="error" sx={{ mt: 1, width: 'fit-content' }}>
                 This product is currently out of stock
               </Alert>
             )}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Paper>
     </Container>
   );

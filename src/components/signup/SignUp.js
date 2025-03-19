@@ -23,6 +23,7 @@ const SignUp = () => {
     contactNumber: ''
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -35,33 +36,92 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     try {
-      // Prepare data for API - matching the exact format required
-      const signupData = {
+      setLoading(true);
+      setError('');
+
+      // Validate required fields
+      if (!formData.email || !formData.password || !formData.firstName || !formData.lastName || !formData.contactNumber) {
+        setError('All fields are required');
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError('Please enter a valid email address');
+        return;
+      }
+
+      // Validate contact number (assuming 10 digits)
+      const phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(formData.contactNumber)) {
+        setError('Contact number should be 10 digits');
+        return;
+      }
+
+      // Log pre-request state
+      console.log('Starting signup process...');
+      console.log('Current form state:', {
         email: formData.email,
-        password: formData.password,
         firstName: formData.firstName,
-        role: ["admin"],
         lastName: formData.lastName,
-        contactNumber: formData.contactNumber
+        contactNumber: formData.contactNumber,
+        passwordLength: formData.password?.length
+      });
+
+      // Prepare signup data
+      const signupData = {
+        email: formData.email.trim(),
+        password: formData.password,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        contactNumber: formData.contactNumber.trim(),
+        role: ["admin"]
       };
 
-      console.log('Attempting signup with:', signupData);
-      const response = await authAPI.signup(signupData);
-      console.log('Signup successful:', response);
-      
-      // After successful signup, navigate to login
-      navigate('/login');
+      console.log('Sending signup request with data:', JSON.stringify(signupData, null, 2));
+
+      try {
+        const response = await authAPI.signup(signupData);
+        console.log('Signup API Response:', response);
+
+        // Navigate to login page with success message
+        navigate('/login', {
+          state: { notification: 'User Registered Successfully!' }
+        });
+
+      } catch (apiError) {
+        console.error('API Error Details:', {
+          status: apiError.response?.status,
+          statusText: apiError.response?.statusText,
+          data: apiError.response?.data,
+          headers: apiError.response?.headers,
+          requestData: apiError.config?.data,
+          requestHeaders: apiError.config?.headers,
+          requestMethod: apiError.config?.method,
+          requestUrl: apiError.config?.url
+        });
+
+        // Handle specific error cases
+        if (apiError.response?.status === 400) {
+          const errorData = apiError.response.data;
+          if (errorData?.message?.includes('email')) {
+            setError('Email is already registered or invalid');
+          } else if (errorData?.message?.includes('password')) {
+            setError('Password does not meet requirements');
+          } else {
+            setError(errorData?.message || 'Invalid signup data');
+          }
+        } else {
+          setError('Failed to sign up. Please try again later.');
+        }
+      }
     } catch (err) {
-      console.error('Signup error:', err);
-      const errorMessage = err.response?.data?.message || 'An error occurred during signup. Please try again.';
-      setError(errorMessage);
+      console.error('Unexpected error during signup:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 

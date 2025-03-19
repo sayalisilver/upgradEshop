@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -14,14 +14,21 @@ import './Navbar.css';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Check if current path is login or signup
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('isAdmin');
-    navigate('/login');
+    // Clear all stored data
+    localStorage.clear();
+    // Clear any search queries
+    localStorage.removeItem('searchQuery');
+    // Force navigation to login page
+    window.location.href = '/login';
   };
 
   const handleSearch = (e) => {
@@ -67,42 +74,46 @@ const Navbar = () => {
         </Box>
 
         {/* Center section - Search */}
-        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-          <form onSubmit={handleSearch} className="search-form">
-            <Box className="search-container">
-              <IconButton type="submit" sx={{ color: 'white', p: 1 }}>
-                <SearchIcon />
-              </IconButton>
-              <InputBase
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-                sx={{
-                  color: 'white',
-                  '&::placeholder': {
-                    color: 'rgba(255, 255, 255, 0.7)',
-                  },
-                  minWidth: '300px',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                }}
-              />
-            </Box>
-          </form>
-        </Box>
+        {!isAuthPage && (
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+            <form onSubmit={handleSearch} className="search-form">
+              <Box className="search-container">
+                <IconButton type="submit" sx={{ color: 'white', p: 1 }}>
+                  <SearchIcon />
+                </IconButton>
+                <InputBase
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                  sx={{
+                    color: 'white',
+                    '&::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                    },
+                    minWidth: '300px',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                  }}
+                />
+              </Box>
+            </form>
+          </Box>
+        )}
 
         {/* Right section - Navigation */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 0 }}>
-          <Button 
-            component={RouterLink} 
-            to="/products"
-            sx={buttonStyle}
-          >
-            Home
-          </Button>
+          {!isAuthPage && (
+            <Button 
+              component={RouterLink} 
+              to="/products"
+              sx={buttonStyle}
+            >
+              Home
+            </Button>
+          )}
           
-          {isLoggedIn && isAdmin && (
+          {isLoggedIn && isAdmin && !isAuthPage && (
             <Button 
               component={RouterLink} 
               to="/products/add"
